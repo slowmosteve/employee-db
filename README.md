@@ -25,10 +25,7 @@ This project is organized as follows:
 - Google Sheets upload to BigQuery for add employees (Apps Script)
 
 ## to do
-- update add employees Apps Script to clear sheet after uploading
-- delete staging table upon successful insert to production table
 - add Google Sheets Apps Script for changing team members (e.g. new hires, promotions, exits)
 
 ## known issues
 - `former_employees.sql` gives duplicates when there are multiple team member changes on the most recent date (joined on the maximum last change date)
-- currently able to load an entire sheet to BigQuery but getting errors when trying to load a limited range of cells
