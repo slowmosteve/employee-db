@@ -22,171 +22,37 @@ function onOpen() {
 }
 
 function currentSnapshot() {
-  // Replace this value with your project ID and the name of the sheet to update.
-  var projectId = 'test-employee-db';
-  var sheetName = 'Current Snapshot';
-
-  // Submit query
-  var request = {
-    query: 'SELECT * FROM employee_db.current_snapshot',
-    useLegacySql: false
-  };
-  var queryResults = BigQuery.Jobs.query(request, projectId);
-  var jobId = queryResults.jobReference.jobId;
-
-  // Check on status
-  var sleepTimeMs = 500;
-  while (!queryResults.jobComplete) {
-    Utilities.sleep(sleepTimeMs);
-    sleepTimeMs *= 2;
-    queryResults = BigQuery.Jobs.getQueryResults(projectId, jobId);
-  }
-  
-  // Get all the rows of results
-  var rows = queryResults.rows;
-  while (queryResults.pageToken) {
-    queryResults = BigQuery.Jobs.getQueryResults(projectId, jobId, {
-      pageToken: queryResults.pageToken
-    });
-    rows = rows.concat(queryResults.rows);
-  }
-  console.info('%d rows found.', rows.length);
-  
-  if (rows) {
-    // Append the results to an array
-    var data = new Array(rows.length);
-    for (var i = 0; i < rows.length; i++) {
-      var cols = rows[i].f;
-      data[i] = new Array(cols.length);
-      for (var j = 0; j < cols.length; j++) {
-        data[i][j] = cols[j].v;
-      }
-    }
-    
-    // get the sheet sheetName and clear it or create a new sheet and rename to sheetName
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var currentSheet = ss.getSheetByName(sheetName);
-    if (currentSheet === null) {
-      currentSheet = ss.insertSheet(99);
-      ss.renameActiveSheet(sheetName);
-    } else {
-      currentSheet.clear();
-    }
-    
-    // get the column headers from the query and append them to the first row
-    var headers = queryResults.schema.fields.map(function(field) {
-      return field.name;
-    });
-    currentSheet.appendRow(headers);
-
-    // populate the query results starting on row 2
-    if (rows) {
-      currentSheet.getRange(2, 1, rows.length, headers.length)
-        .setValues(data)
-    };
-    
-    //remove empty rows
-    var maxRows = currentSheet.getMaxRows();
-    var lastRow = currentSheet.getLastRow();
-    if (maxRows == lastRow){}
-    else {currentSheet.deleteRows(lastRow+1, maxRows-lastRow)}
-    
-    // resize columns
-    currentSheet.autoResizeColumns(1,20)
-    
-    console.info('%d rows inserted.', rows.length);
-  } else {
-    console.info('No results found in BigQuery');
-  }
+  // Overwrites the Current Snapshot sheet with the latest view
+  var project_id = 'test-employee-db';
+  var sheet_name = 'Current Snapshot';
+  var query_string = 'SELECT * FROM employee_db.current_snapshot';
+  updateSheet(project_id, sheet_name, query_string);
 }
 
 function formerEmployees() {
-  // Replace this value with your project ID and the name of the sheet to update.
-  var projectId = 'test-employee-db';
-  var sheetName = 'Former Employees';
-
-  // Submit query
-  var request = {
-    query: 'SELECT * FROM employee_db.former_employees',
-    useLegacySql: false
-  };
-  var queryResults = BigQuery.Jobs.query(request, projectId);
-  var jobId = queryResults.jobReference.jobId;
-
-  // Check on status
-  var sleepTimeMs = 500;
-  while (!queryResults.jobComplete) {
-    Utilities.sleep(sleepTimeMs);
-    sleepTimeMs *= 2;
-    queryResults = BigQuery.Jobs.getQueryResults(projectId, jobId);
-  }
-  
-  // Get all the rows of results
-  var rows = queryResults.rows;
-  while (queryResults.pageToken) {
-    queryResults = BigQuery.Jobs.getQueryResults(projectId, jobId, {
-      pageToken: queryResults.pageToken
-    });
-    rows = rows.concat(queryResults.rows);
-  }
-  console.info('%d rows found.', rows.length);
-  
-  if (rows) {
-    // Append the results to an array
-    var data = new Array(rows.length);
-    for (var i = 0; i < rows.length; i++) {
-      var cols = rows[i].f;
-      data[i] = new Array(cols.length);
-      for (var j = 0; j < cols.length; j++) {
-        data[i][j] = cols[j].v;
-      }
-    }
-    
-    // get the sheet sheetName and clear it or create a new sheet and rename to sheetName
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var currentSheet = ss.getSheetByName(sheetName);
-    if (currentSheet === null) {
-      currentSheet = ss.insertSheet(99);
-      ss.renameActiveSheet(sheetName);
-    } else {
-      currentSheet.clear();
-    }
-    
-    // get the column headers from the query and append them to the first row
-    var headers = queryResults.schema.fields.map(function(field) {
-      return field.name;
-    });
-    currentSheet.appendRow(headers);
-
-    // populate the query results starting on row 2
-    if (rows) {
-      currentSheet.getRange(2, 1, rows.length, headers.length)
-        .setValues(data)
-    };
-    
-    //remove empty rows
-    var maxRows = currentSheet.getMaxRows();
-    var lastRow = currentSheet.getLastRow();
-    if (maxRows == lastRow){}
-    else {currentSheet.deleteRows(lastRow+1, maxRows-lastRow)}
-    
-    // resize columns
-    currentSheet.autoResizeColumns(1,20)
-    
-    console.info('%d rows inserted.', rows.length);
-  } else {
-    console.info('No results found in BigQuery');
-  }
+  // Overwrites the Former Employees sheet with the latest view
+  var project_id = 'test-employee-db';
+  var sheet_name = 'Former Employees';
+  var query_string = 'SELECT * FROM employee_db.former_employees';
+  updateSheet(project_id, sheet_name, query_string);
 }
 
 function monthlyReport() {
+  // Overwrites the Monthly Report sheet with the latest view
+  var project_id = 'test-employee-db';
+  var sheet_name = 'Monthly Report';
+  var query_string = 'SELECT * FROM employee_db.monthly_report';
+  updateSheet(project_id, sheet_name, query_string);
+}
+
+function updateSheet(project_id, sheet_name, query_string) {
   // Replace this value with your project ID and the name of the sheet to update.
-  var projectId = 'test-employee-db';
-  var sheetName = 'Monthly Report';
+  var projectId = project_id;
+  var sheetName = sheet_name;
 
   // Submit query
   var request = {
-    query: 'SELECT * FROM employee_db.monthly_report',
+    query: query_string,
     useLegacySql: false
   };
   var queryResults = BigQuery.Jobs.query(request, projectId);
@@ -208,9 +74,9 @@ function monthlyReport() {
     });
     rows = rows.concat(queryResults.rows);
   }
-  console.info('%d rows found.', rows.length);
   
   if (rows) {
+    console.info('%d rows found.', rows.length);
     // Append the results to an array
     var data = new Array(rows.length);
     for (var i = 0; i < rows.length; i++) {
