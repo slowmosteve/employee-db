@@ -1,8 +1,8 @@
 CREATE TABLE employee_db.employees (
-  employee_id INT64 OPTIONS(description="Employee ID"),
+  system_id INT64 OPTIONS(description="Internal system ID used by the employee database"),
+  employee_id STRING OPTIONS(description="Employee ID e.g. T/X-ID"),
   first_name STRING OPTIONS(description="Employee first name"),
   last_name STRING OPTIONS(description="Employee last name"),
-  gender STRING OPTIONS(description="Gender of the employee"),
 )
 OPTIONS (
   description="Table containing employee information"
