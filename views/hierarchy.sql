@@ -18,7 +18,7 @@ sub_team_managers AS (
     first_name
   FROM `test-employee-db.employee_db.team_roles` AS team_roles
   JOIN `test-employee-db.employee_db.employees` AS employees
-  ON team_roles.employee_id = employees.employee_id
+  ON team_roles.system_id = employees.system_id
   WHERE
     end_date IS NULL
     AND title_id IN (2, 3)
@@ -41,7 +41,7 @@ sub_team_roles AS (
     titles.title_name,
   FROM `test-employee-db.employee_db.team_roles` AS team_roles
   JOIN `test-employee-db.employee_db.employees` AS employees
-  ON team_roles.employee_id = employees.employee_id
+  ON team_roles.system_id = employees.system_id
   JOIN `test-employee-db.employee_db.titles` AS titles
   ON team_roles.title_id = titles.title_id
   WHERE
@@ -64,7 +64,7 @@ SELECT
   hierarchy.team_id,
   hierarchy.team_level,
   hierarchy.team_name,
-  team_roles.employee_id,
+  team_roles.system_id,
   employees.first_name,
   team_roles.title_id,
   titles.title_name,
@@ -78,7 +78,7 @@ SELECT
 --   CASE WHEN team_level = "Director" THEN sub_team_stats.count_team_members 
 --     ELSE NULL
 --     END AS count_team_members,
-  sub_team_roles.employee_id AS sub_team_employee_id,
+  sub_team_roles.system_id AS sub_team_system_id,
   sub_team_roles.first_name AS sub_team_employee_name,
   sub_team_roles.title_name AS sub_team_employee_title,
   sub_team_roles.employee_type,
@@ -87,7 +87,7 @@ FROM hierarchy
 LEFT JOIN team_roles
 ON hierarchy.team_id = team_roles.team_id
 LEFT JOIN employees
-ON team_roles.employee_id = employees.employee_id
+ON team_roles.system_id = employees.system_id
 LEFT JOIN titles
 ON team_roles.title_id = titles.title_id
 LEFT JOIN teams

@@ -6,15 +6,15 @@ WITH employees AS (
 ),
 hire_date AS (
   SELECT
-    employee_id,
+    system_id,
     MIN(start_date) AS min_start_date
   FROM
     `test-employee-db.employee_db.team_roles`
-  GROUP BY employee_id
+  GROUP BY system_id
 ),
 current_roles AS (
   SELECT
-    employee_id,
+    system_id,
     team_id,
     title_id,
     employee_type,
@@ -49,9 +49,9 @@ SELECT
   ROUND(DATE_DIFF(CURRENT_DATE(), hire_date.min_start_date, MONTH)/12, 1) AS tenure_years
 FROM employees
 JOIN hire_date
-ON employees.employee_id = hire_date.employee_id
+ON employees.system_id = hire_date.system_id
 JOIN current_roles
-ON employees.employee_id = current_roles.employee_id
+ON employees.system_id = current_roles.system_id
 JOIN titles
 ON current_roles.title_id = titles.title_id
 JOIN teams

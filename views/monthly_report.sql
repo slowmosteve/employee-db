@@ -9,26 +9,26 @@ team_roles AS (
   SELECT
     team_roles.start_date,
     team_roles.end_date,
-    team_roles.employee_id,
+    team_roles.system_id,
     employees.first_name,
     team_roles.title_id,
     titles.title_name,
     team_roles.employee_type,
     team_roles.team_id,
-    ROW_NUMBER() OVER (PARTITION BY team_roles.employee_id ORDER BY team_roles.start_date) AS row_number,
-    LAG(titles.title_name) OVER (PARTITION BY team_roles.employee_id ORDER BY team_roles.start_date) AS last_title,
-    LAG(team_roles.team_id) OVER (PARTITION BY team_roles.employee_id ORDER BY team_roles.start_date) AS last_team,
-    LAG(team_roles.employee_type) OVER (PARTITION BY team_roles.employee_id ORDER BY team_roles.start_date) AS last_employee_type,
+    ROW_NUMBER() OVER (PARTITION BY team_roles.system_id ORDER BY team_roles.start_date) AS row_number,
+    LAG(titles.title_name) OVER (PARTITION BY team_roles.system_id ORDER BY team_roles.start_date) AS last_title,
+    LAG(team_roles.team_id) OVER (PARTITION BY team_roles.system_id ORDER BY team_roles.start_date) AS last_team,
+    LAG(team_roles.employee_type) OVER (PARTITION BY team_roles.system_id ORDER BY team_roles.start_date) AS last_employee_type,
   FROM `test-employee-db.employee_db.team_roles` AS team_roles
   LEFT JOIN `test-employee-db.employee_db.employees` AS employees
-  ON team_roles.employee_id = employees.employee_id
+  ON team_roles.system_id = employees.system_id
   LEFT JOIN `test-employee-db.employee_db.titles` AS titles
   ON team_roles.title_id = titles.title_id
 ),
 new_hires AS (
   SELECT
     start_date,
-    employee_id,
+    system_id,
     title_id,
     team_id
   FROM team_roles
@@ -37,7 +37,7 @@ new_hires AS (
 promotions AS (
   SELECT
     start_date,
-    employee_id,
+    system_id,
     title_id,
     team_id
   FROM team_roles
@@ -48,7 +48,7 @@ promotions AS (
 team_changes AS (
   SELECT
     start_date,
-    employee_id,
+    system_id,
     title_id,
     team_id
   FROM team_roles
@@ -59,7 +59,7 @@ team_changes AS (
 contract_conversions AS (
   SELECT
     start_date,
-    employee_id,
+    system_id,
     title_id,
     team_id
   FROM team_roles
@@ -71,7 +71,7 @@ contract_conversions AS (
 former_employees AS (
   SELECT
     start_date,
-    employee_id,
+    system_id,
     title_id,
     team_id
   FROM team_roles
@@ -82,12 +82,12 @@ summary AS (
   SELECT
     months.*,
     team_roles.*,
-    CASE WHEN new_hires.employee_id IS NOT NULL THEN 1 END AS new_hire_ind,
-    CASE WHEN promotions.employee_id IS NOT NULL THEN 1 END AS promotion_ind,
-    CASE WHEN team_changes.employee_id IS NOT NULL THEN 1 END AS team_change_ind,
-    CASE WHEN contract_conversions.employee_id IS NOT NULL THEN 1 END AS contract_conversion_ind,
-    CASE WHEN former_employees.employee_id IS NOT NULL THEN 1 END AS exit_ind,
-    COUNT(new_hires.employee_id) OVER (ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS employee_count
+    CASE WHEN new_hires.system_id IS NOT NULL THEN 1 END AS new_hire_ind,
+    CASE WHEN promotions.system_id IS NOT NULL THEN 1 END AS promotion_ind,
+    CASE WHEN team_changes.system_id IS NOT NULL THEN 1 END AS team_change_ind,
+    CASE WHEN contract_conversions.system_id IS NOT NULL THEN 1 END AS contract_conversion_ind,
+    CASE WHEN former_employees.system_id IS NOT NULL THEN 1 END AS exit_ind,
+    COUNT(new_hires.system_id) OVER (ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS employee_count
   FROM months
   LEFT JOIN team_roles
   ON
@@ -96,23 +96,23 @@ summary AS (
   LEFT JOIN new_hires
   ON
     team_roles.start_date = new_hires.start_date
-    AND team_roles.employee_id = new_hires.employee_id
+    AND team_roles.system_id = new_hires.system_id
   LEFT JOIN promotions
   ON
     team_roles.start_date = promotions.start_date
-    AND team_roles.employee_id = promotions.employee_id
+    AND team_roles.system_id = promotions.system_id
   LEFT JOIN team_changes
   ON
     team_roles.start_date = team_changes.start_date
-    AND team_roles.employee_id = team_changes.employee_id
+    AND team_roles.system_id = team_changes.system_id
   LEFT JOIN contract_conversions
   ON
     team_roles.start_date = contract_conversions.start_date
-    AND team_roles.employee_id = contract_conversions.employee_id
+    AND team_roles.system_id = contract_conversions.system_id
   LEFT JOIN former_employees
   ON
     team_roles.start_date = former_employees.start_date
-    AND team_roles.employee_id = former_employees.employee_id
+    AND team_roles.system_id = former_employees.system_id
 )
 SELECT
   dt,
