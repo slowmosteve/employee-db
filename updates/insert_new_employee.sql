@@ -2,13 +2,13 @@
 -- employee IDs are incremented from existing IDs
 -- REQUIRED: first_name, last_name, team_id, title_id, employee_type, gender
 
-DECLARE new_employee_id INT64;
+DECLARE new_system_id INT64;
 DECLARE first_name STRING;
 DECLARE last_name STRING;
 DECLARE team_id INT64;
 DECLARE title_id INT64;
+DECLARE employee_id STRING;
 DECLARE employee_type STRING;
-DECLARE gender STRING;
 DECLARE start_date DATE;
 DECLARE current_date DATE;
 DECLARE new_employee_state ARRAY<STRUCT<name STRING, value STRING>>;
@@ -17,13 +17,13 @@ SET first_name = "First Name";
 SET last_name = "Last Name";
 SET team_id = NULL;
 SET title_id = NULL;
+SET employee_id = NULL; -- T/X-ID
 SET employee_type = "Contractor"; -- Contractor, Full time
-SET gender = NULL;
 SET start_date = CURRENT_DATE();
 SET current_date = CURRENT_DATE();
-SET new_employee_id = (
+SET new_system_id = (
   SELECT 
-    MAX(employee_id) + 1
+    MAX(system_id) + 1
   FROM employee_db.employees
 );
 SET new_employee_state = [
@@ -46,12 +46,11 @@ SET new_employee_state = [
 ];
 
 INSERT employee_db.employees (
-  employee_id,
+  system_id,
   first_name,
-  last_name,
-  gender
+  last_name
 )
-VALUES (new_employee_id, first_name, last_name, gender);
+VALUES (new_system_id, first_name, last_name);
 
 INSERT employee_db.team_roles (
   employee_id,
@@ -61,17 +60,17 @@ INSERT employee_db.team_roles (
   start_date
 )
 VALUES 
-    (new_employee_id, team_id, title_id, employee_type, start_date);
+    (new_system_id, team_id, title_id, employee_type, start_date);
 
 INSERT employee_db.change_log (
   change_date,
   change_type,
-  employee_id,
+  system_id,
   new_state
 )
 VALUES (
   current_date, 
   "New hire", 
-  new_employee_id, 
+  new_system_id, 
   new_employee_state
 );

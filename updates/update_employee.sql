@@ -1,7 +1,7 @@
 -- query for updating employee records
 -- REQUIRED: employee_id, change_date, change_type, new_team_id, new_title_id, new_employee_type
 
-DECLARE change_employee_id INT64;
+DECLARE change_system_id INT64;
 DECLARE change_date DATE;
 DECLARE change_type STRING;
 DECLARE new_team_id INT64;
@@ -10,7 +10,7 @@ DECLARE new_employee_type STRING;
 DECLARE old_employee_state ARRAY<STRUCT<name STRING, value STRING>>;
 DECLARE new_employee_state ARRAY<STRUCT<name STRING, value STRING>>;
 
-SET change_employee_id = 6;
+SET change_system_id = 6;
 SET change_date = CURRENT_DATE();
 SET change_type = "Promotion"; -- Promotion, Contractor to FTE, Team Change, Termination, Voluntary Exit
 SET new_team_id = 2;
@@ -44,7 +44,7 @@ SET old_employee_state = (
     FROM
       employee_db.team_roles
     WHERE
-      employee_id = change_employee_id  
+      system_id = change_system_id  
       AND end_date IS NULL
   )
   SELECT
@@ -73,32 +73,32 @@ SET old_employee_state = (
 UPDATE employee_db.team_roles
 SET end_date = change_date
 WHERE
-  employee_id = change_employee_id
+  system_id = change_system_id
   AND end_date IS NULL;
 
 -- add new role
 INSERT employee_db.team_roles (
-  employee_id,
+  system_id,
   team_id,
   title_id,
   employee_type,
   start_date
 )
 VALUES 
-    (change_employee_id, new_team_id, new_title_id, new_employee_type, change_date);
+    (change_system_id, new_team_id, new_title_id, new_employee_type, change_date);
 
 -- update change log
 INSERT employee_db.change_log (
   change_date,
   change_type,
-  employee_id,
+  system_id,
   old_state,
   new_state
 )
 VALUES (
   current_date, 
   change_type, 
-  change_employee_id, 
+  change_system_id, 
   old_employee_state,
   new_employee_state
 );
