@@ -117,34 +117,32 @@ function updateSheet(project_id, sheet_name, query_string) {
 
 // query used for adding employees
 var addEmployeeQuery = `
-  DECLARE max_employee_id INT64;
-  SET max_employee_id = (
+  DECLARE max_system_id INT64;
+  SET max_system_id = (
     SELECT 
-      MAX(employee_id)
+      MAX(system_id)
     FROM employee_db.employees
   );
   INSERT employee_db.employees (
-    employee_id,
+    system_id,
     first_name,
-    last_name,
-    gender
+    last_name
   )
   SELECT
-    max_employee_id + ROW_NUMBER() OVER (ORDER BY first_name, last_name, team_id, title_id, start_date) AS employee_id,
+    max_system_id + ROW_NUMBER() OVER (ORDER BY first_name, last_name, team_id, title_id, start_date) AS system_id,
     first_name,
-    last_name,
-    gender
+    last_name
   FROM \`test-employee-db.staging.add_employee\`;
   INSERT
     employee_db.team_roles (
-      employee_id,
+      system_id,
       team_id,
       title_id,
       employee_type,
       start_date
     )
   SELECT
-    max_employee_id + ROW_NUMBER() OVER (ORDER BY first_name, last_name, team_id, title_id, start_date) AS employee_id,
+    max_system_id + ROW_NUMBER() OVER (ORDER BY first_name, last_name, team_id, title_id, start_date) AS system_id,
     team_id,
     title_id,
     employee_type,
@@ -154,13 +152,13 @@ var addEmployeeQuery = `
   INSERT employee_db.change_log (
       change_date,
       change_type,
-      employee_id,
+      system_id,
       new_state
     )
   SELECT
     CURRENT_DATE() AS current_date,
     "New hire" AS change_type,
-    max_employee_id + ROW_NUMBER() OVER (ORDER BY first_name, last_name, team_id, title_id, start_date) AS employee_id,
+    max_system_id + ROW_NUMBER() OVER (ORDER BY first_name, last_name, team_id, title_id, start_date) AS system_id,
     [
       STRUCT("title_id" AS name, CAST(title_id AS STRING) AS value),
       STRUCT("team_id" AS name, CAST(team_id AS STRING) AS value),
@@ -200,7 +198,6 @@ function addEmployees() {
         {name: 'team_id', type: 'INTEGER'},
         {name: 'title_id', type: 'INTEGER'},
         {name: 'employee_type', type: 'STRING'},
-        {name: 'gender', type: 'STRING'},
         {name: 'start_date', type: 'STRING'}
       ]
     }
