@@ -1,5 +1,5 @@
 INSERT employee_db.employees (
-  employee_id,
+  system_id,
   first_name,
   last_name
 )
