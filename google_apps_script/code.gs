@@ -276,7 +276,7 @@ function addEmployees() {
     Utilities.sleep(sleepTimeMs);
     sleepTimeMs *= 2;
     insert_status = BigQuery.Jobs.get(projectId, insert_jobId);
-    Logger.log('Insert status: ' + status);
+    Logger.log('Insert status: ' + insert_status);
   }
   // clear cells below headers once job is complete
   Logger.log('Job state: ' + insert_status.status.state);
@@ -284,4 +284,9 @@ function addEmployees() {
     var range = currentSheet.getRange("A6:Z1000");
     range.clear();
   }
+  
+  // refresh the current snapshot
+  currentSnapshot();
+  // refresh monthly report
+  monthlyReport();
 }
