@@ -1,5 +1,5 @@
 -- query for adding new employees
--- employee IDs are incremented from existing IDs
+-- system_id is incremented from current maximum system_id
 -- REQUIRED: first_name, last_name, team_id, title_id, employee_type, gender
 
 DECLARE new_system_id INT64;

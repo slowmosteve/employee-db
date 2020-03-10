@@ -1,5 +1,5 @@
 -- query for updating employee records
--- REQUIRED: employee_id, change_date, change_type, new_team_id, new_title_id, new_employee_type
+-- REQUIRED: system_id, change_date, change_type, new_team_id, new_title_id, new_employee_type
 
 DECLARE change_system_id INT64;
 DECLARE change_date DATE;
