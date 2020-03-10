@@ -211,20 +211,21 @@ function addEmployees() {
     Logger.log('Table created: %s', table.id);
   }
   
-  var lastRow = currentSheet.getRange(currentSheet.getLastRow(),1)
-                  .getNextDataCell(SpreadsheetApp.Direction.UP)
-                  .getLastRow() + 1;
+  var lastRow = currentSheet.getRange(5,1)
+                  .getNextDataCell(SpreadsheetApp.Direction.DOWN)
+                  .getLastRow();
+  var totalRows = lastRow - 5;
   var lastColumn = currentSheet.getRange(5,1)
                   .getNextDataCell(SpreadsheetApp.Direction.NEXT)
                   .getLastColumn();
-  Logger.log('last row: ' + lastRow + ', last column: ' + lastColumn);
-  var rows = currentSheet.getRange(6, 1, 2, 7).getValues();
+  Logger.log('last row: ' + lastRow + ', last column: ' + lastColumn + ', total rows: ' + totalRows);
+  var rows = currentSheet.getRange(6, 1, totalRows, lastColumn).getValues();
   var row_range = [];
   rows.forEach(function (item, index) {
     console.log(item, index);
-    row_range[index] = rows[index].slice(0,7);
+    row_range[index] = rows[index].slice(0,6);
     
-    var rowsCSV = row_range[index].join(", ");
+    var rowsCSV = row_range[index].join(",");
     var blob = Utilities.newBlob(rowsCSV, "text/csv");
     var data = blob.setContentType('application/octet-stream');
     
