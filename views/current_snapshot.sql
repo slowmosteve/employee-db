@@ -15,6 +15,7 @@ hire_date AS (
 current_roles AS (
   SELECT
     system_id,
+    employee_id,
     team_id,
     title_id,
     employee_type,
@@ -38,6 +39,7 @@ teams AS (
     `test-employee-db.employee_db.teams_hierarchy`
 )
 SELECT
+  current_roles.employee_id AS employee_id,
   employees.*,
   titles.title_id AS title_id,
   titles.title_name AS current_title,
